@@ -35,10 +35,10 @@ const createMap = (): string => `
             <button
               class="map-region map-region--${index + 1}"
               type="button"
-              data-target="${exhibit.id}"
-              aria-label="${exhibit.regionTitle}. Перейти к экспонату: ${exhibit.autor}"
+              data-target="exhibit-${exhibit.id}"
+              aria-label="${exhibit.regionTitle}. Перейти к экспонату: ${exhibit.authorCaption}"
             >
-              <img src="${assetPath(`map/${exhibit.map}`)}" alt="" loading="lazy" />
+              <img src="${exhibit.mapImage}" alt="" loading="lazy" />
               <span class="map-region__tooltip" role="tooltip">
                 <strong>${exhibit.regionTitle}</strong>
                 <span>${exhibit.regionDescription}</span>
@@ -52,11 +52,11 @@ const createMap = (): string => `
 `;
 
 const createExhibit = (exhibit: (typeof exhibits)[number], index: number): string => `
-  <article class="exhibit" id="${exhibit.id}" aria-labelledby="${exhibit.id}-title">
+  <article class="exhibit" id="exhibit-${exhibit.id}" aria-labelledby="exhibit-${exhibit.id}-title">
     <div class="exhibit__number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</div>
     <div class="exhibit__image-panel">
-      <img src="${assetPath(`pictures/${exhibit.pictures}`)}" alt="${exhibit.autor}" loading="lazy" />
-      <p class="exhibit__caption" id="${exhibit.id}-title">${exhibit.autor}</p>
+      <img src="${exhibit.picture}" alt="${exhibit.authorCaption}" loading="lazy" />
+      <p class="exhibit__caption" id="exhibit-${exhibit.id}-title">${exhibit.authorCaption}</p>
     </div>
     <div class="exhibit__content">
       <div class="exhibit__region">${exhibit.regionTitle}</div>
@@ -65,7 +65,7 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
         <button
           class="audio-button"
           type="button"
-          data-audio="${assetPath(`sound_comment/${exhibit.sound_comment}`)}"
+          data-audio="${exhibit.audio}"
           aria-label="Включить аудиокомментарий"
         >
           <img src="${assetPath('icon_audio.png')}" alt="" aria-hidden="true" />
@@ -76,7 +76,7 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
         </div>
         <div>
           <h3>Комментарий рунопевца</h3>
-          ${exhibit.comments
+          ${exhibit.comment
             .split('\n')
             .filter(Boolean)
             .map((paragraph) => `<p>${paragraph}</p>`)
