@@ -54,7 +54,7 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -2;
-  background-image: var(--tour-background-image);
+  background-image: var(--hero-bg-image);
   background-size: cover;
   background-position: center;
   opacity: 0.42;
@@ -117,7 +117,7 @@ a:focus-visible,
   background:
     radial-gradient(circle at 50% 42%, rgba(255, 245, 211, 0.28), transparent 18rem),
     radial-gradient(circle at 50% 100%, rgba(63, 112, 123, 0.92), rgba(14, 45, 55, 0.98) 54%, rgba(8, 28, 36, 0.99)),
-    var(--tour-background-image) center / cover;
+    var(--hero-bg-image) center / cover;
   color: #fff7e8;
   text-align: center;
   transition: opacity 0.7s ease, visibility 0.7s ease;
@@ -292,7 +292,7 @@ a:focus-visible,
   z-index: -2;
   background:
     linear-gradient(110deg, rgba(13, 42, 50, 0.88), rgba(17, 68, 76, 0.56) 54%, rgba(224, 166, 82, 0.25)),
-    var(--tour-background-image) center / cover;
+    var(--hero-bg-image) center / cover;
   content: '';
 }
 
@@ -505,11 +505,12 @@ main {
   filter: brightness(1.13) saturate(1.12) sepia(0.08);
 }
 
-.map-region__tooltip {
+.map-tooltip {
   position: absolute;
-  left: 50%;
-  bottom: calc(100% + 0.85rem);
-  width: min(250px, 78vw);
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: min(250px, calc(100% - 1.5rem));
   padding: 0.9rem 1rem;
   border: 1px solid rgba(200, 154, 74, 0.42);
   border-radius: 18px;
@@ -518,26 +519,27 @@ main {
   text-align: left;
   box-shadow: 0 18px 50px rgba(18, 48, 53, 0.22);
   opacity: 0;
-  transform: translate(-50%, 8px);
+  transform: translate3d(var(--map-tooltip-x, 0), calc(var(--map-tooltip-y, 0) + 8px), 0);
   transition: opacity 0.25s ease, transform 0.25s ease;
   pointer-events: none;
 }
 
-.map-region__tooltip strong,
-.map-region__tooltip span {
+.map-tooltip.is-visible {
+  border-color: rgba(189, 145, 68, 0.68);
+  box-shadow: 0 20px 54px rgba(18, 48, 53, 0.24), inset 0 0 0 1px rgba(255, 248, 231, 0.64);
+  opacity: 1;
+  transform: translate3d(var(--map-tooltip-x, 0), var(--map-tooltip-y, 0), 0);
+}
+
+.map-tooltip strong,
+.map-tooltip span {
   display: block;
 }
 
-.map-region__tooltip strong {
+.map-tooltip strong {
   margin-bottom: 0.35rem;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.1rem;
-}
-
-.map-region:hover .map-region__tooltip,
-.map-region:focus-visible .map-region__tooltip {
-  opacity: 1;
-  transform: translate(-50%, 0);
 }
 
 .intro {
@@ -1024,7 +1026,9 @@ main {
 }
 
 .hero-map__copy {
+  z-index: 2;
   max-width: 580px;
+  min-width: 0;
 }
 
 .hero-map__instruction {
@@ -1043,6 +1047,8 @@ main {
 .hero-map__stage {
   position: relative;
   width: min(760px, 100%);
+  min-width: 0;
+  overflow: visible;
   aspect-ratio: 1.38;
   justify-self: center;
   border: 1px solid rgba(255, 248, 231, 0.32);
@@ -1058,7 +1064,7 @@ main {
   background:
     radial-gradient(circle at 35% 28%, rgba(255, 248, 231, 0.34), transparent 18%),
     radial-gradient(circle at 78% 68%, rgba(200, 154, 74, 0.16), transparent 24%),
-    var(--tour-background-image) center / cover,
+    var(--hero-bg-image) center / cover,
     linear-gradient(140deg, rgba(51, 108, 121, 0.86), rgba(21, 61, 75, 0.9));
   box-shadow: inset 0 0 120px rgba(232, 244, 236, 0.22), 0 28px 80px rgba(5, 23, 30, 0.38);
   overflow: hidden;
@@ -1082,6 +1088,7 @@ main {
 .hero-map__stage .map-region {
   --float-y: -8px;
   --float-rotate: 1deg;
+  z-index: 10;
   width: 30%;
   transform-origin: 50% 58%;
   animation: mapFloat 7.5s ease-in-out infinite;
@@ -1131,8 +1138,9 @@ main {
 }
 
 .hero-map__stage .map-region:hover,
-.hero-map__stage .map-region:focus-visible {
-  z-index: 10;
+.hero-map__stage .map-region:focus-visible,
+.hero-map__stage .map-region.is-active {
+  z-index: 40;
   filter: drop-shadow(0 24px 24px rgba(6, 30, 36, 0.34)) drop-shadow(0 0 18px rgba(255, 218, 134, 0.36));
 }
 
@@ -1142,35 +1150,6 @@ main {
   filter: brightness(1.16) saturate(1.18) sepia(0.08);
 }
 
-.hero-map__stage .map-region--1 .map-region__tooltip,
-.hero-map__stage .map-region--2 .map-region__tooltip {
-  top: calc(100% + 0.7rem);
-  bottom: auto;
-}
-
-.hero-map__stage .map-region--1 .map-region__tooltip,
-.hero-map__stage .map-region--3 .map-region__tooltip {
-  left: 0;
-  transform: translate(0, 8px);
-}
-
-.hero-map__stage .map-region--2 .map-region__tooltip,
-.hero-map__stage .map-region--5 .map-region__tooltip {
-  right: 0;
-  left: auto;
-  transform: translate(0, 8px);
-}
-
-.hero-map__stage .map-region--1:hover .map-region__tooltip,
-.hero-map__stage .map-region--1:focus-visible .map-region__tooltip,
-.hero-map__stage .map-region--2:hover .map-region__tooltip,
-.hero-map__stage .map-region--2:focus-visible .map-region__tooltip,
-.hero-map__stage .map-region--3:hover .map-region__tooltip,
-.hero-map__stage .map-region--3:focus-visible .map-region__tooltip,
-.hero-map__stage .map-region--5:hover .map-region__tooltip,
-.hero-map__stage .map-region--5:focus-visible .map-region__tooltip {
-  transform: translate(0, 0);
-}
 
 @keyframes mapFloat {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(calc(var(--float-rotate) * -0.55)); }
@@ -1407,7 +1386,7 @@ audio {
   .hero-map__stage {
     min-height: clamp(260px, 78vw, 440px);
     aspect-ratio: 0.96;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .hero-map__stage .map-region {
@@ -1428,27 +1407,16 @@ audio {
     transform: translateY(-4px) scale(1.035);
   }
 
-  .hero-map__stage .map-region__tooltip {
-    right: auto;
-    bottom: auto;
-    left: 50%;
-    top: calc(100% - 0.25rem);
+  .hero-map__stage .map-tooltip {
     width: min(70vw, 220px);
     padding: 0.65rem 0.75rem;
     border-radius: 14px;
     font-size: 0.85rem;
-    transform: translate(-50%, 0.35rem);
   }
 
-  .hero-map__stage .map-region__tooltip strong {
+  .hero-map__stage .map-tooltip strong {
     margin-bottom: 0.2rem;
     font-size: 0.98rem;
-  }
-
-  .hero-map__stage .map-region:focus .map-region__tooltip,
-  .hero-map__stage .map-region:focus-visible .map-region__tooltip {
-    opacity: 1;
-    transform: translate(-50%, 0);
   }
 
   .hero-map__mobile-list {
@@ -1553,7 +1521,7 @@ h1,
 h2,
 h3,
 .topbar .brand,
-.map-region__tooltip strong,
+.map-tooltip strong,
 .exhibit__caption,
 .exhibit__runes,
 .comment-card h3 {
@@ -1625,7 +1593,7 @@ a:focus-visible,
 .exhibit-section,
 .comment-card,
 .exhibit__runes,
-.map-region__tooltip,
+.map-tooltip,
 .map-region-card {
   background-blend-mode: soft-light, normal;
 }
@@ -1675,11 +1643,6 @@ a:focus-visible,
 .map-region.is-active img {
   transform: translateY(-7px) scale(1.055);
   filter: brightness(1.14) saturate(1.14) sepia(0.1);
-}
-
-.map-region.is-active .map-region__tooltip {
-  border-color: rgba(189, 145, 68, 0.68);
-  box-shadow: 0 20px 54px rgba(18, 48, 53, 0.24), inset 0 0 0 1px rgba(255, 248, 231, 0.64);
 }
 
 .map-region-card {
@@ -1974,28 +1937,41 @@ a:focus-visible,
 }
 
 .hero-map {
-  grid-template-columns: minmax(280px, 0.9fr) minmax(420px, 1.1fr);
+  grid-template-columns: minmax(320px, 0.9fr) minmax(520px, 1.1fr);
   width: min(1180px, 100%);
-  gap: clamp(2rem, 5vw, 4.5rem);
+  gap: clamp(2rem, 5vw, 5rem);
 }
 
 .hero-map__copy {
-  max-width: 620px;
+  z-index: 2;
+  max-width: 560px;
+  min-width: 0;
+}
+
+.hero-map__route {
+  z-index: 1;
   min-width: 0;
 }
 
 .hero-map h1 {
-  max-width: 10ch;
-  font-size: clamp(3rem, 7vw, 6.5rem);
-  line-height: 0.98;
+  max-width: 560px;
+  font-size: clamp(4rem, 7vw, 6.4rem);
+  line-height: 0.95;
+}
+
+.hero-map h1 span {
+  display: block;
+  white-space: nowrap;
 }
 
 .hero-map .hero__lead {
-  max-width: 620px;
+  max-width: 560px;
 }
 
 .hero-map__stage {
   width: min(640px, 100%);
+  min-width: 0;
+  overflow: visible;
 }
 
 .runosinger-hint {
@@ -2010,7 +1986,7 @@ a:focus-visible,
 
 @media (min-width: 1200px) {
   .hero-map {
-    grid-template-columns: minmax(320px, 0.92fr) minmax(520px, 1.08fr);
+    grid-template-columns: minmax(320px, 0.9fr) minmax(520px, 1.1fr);
   }
 }
 
@@ -2027,7 +2003,7 @@ a:focus-visible,
 
   .hero-map h1 {
     max-width: 100%;
-    font-size: clamp(3rem, 11vw, 5rem);
+    font-size: clamp(3rem, 10vw, 5rem);
   }
 }
 
@@ -2044,6 +2020,10 @@ a:focus-visible,
 
   .hero-map h1 {
     max-width: 100%;
-    font-size: clamp(2.45rem, 13vw, 3.45rem);
+    font-size: clamp(2.45rem, 12vw, 3.45rem);
+  }
+
+  .hero__lead {
+    display: none;
   }
 }
