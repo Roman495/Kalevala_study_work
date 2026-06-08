@@ -70,7 +70,7 @@ a {
 
 button:focus-visible,
 a:focus-visible,
-.exhibit:focus-visible {
+.exhibit-section:focus-visible {
   outline: 3px solid var(--gold);
   outline-offset: 5px;
 }
@@ -523,7 +523,7 @@ main {
   padding-bottom: clamp(4rem, 8vw, 7rem);
 }
 
-.exhibit {
+.exhibit-section {
   position: relative;
   display: grid;
   grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.08fr);
@@ -537,14 +537,6 @@ main {
     radial-gradient(circle at top right, rgba(66, 111, 123, 0.15), transparent 36%);
   box-shadow: var(--shadow);
   scroll-margin-top: 1.2rem;
-}
-
-.exhibit:nth-child(even) {
-  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
-}
-
-.exhibit:nth-child(even) .exhibit__image-panel {
-  order: 2;
 }
 
 .exhibit__number {
@@ -562,6 +554,7 @@ main {
 .exhibit__image-panel {
   position: sticky;
   top: 1rem;
+  margin: 0;
 }
 
 .exhibit__image-panel img {
@@ -581,7 +574,7 @@ main {
   text-align: center;
 }
 
-.exhibit__content {
+.exhibit__rune-panel {
   position: relative;
   z-index: 1;
 }
@@ -600,13 +593,18 @@ main {
 .comment-card {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-column: 1 / -1;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 1rem 1.2rem;
-  margin-top: 1.25rem;
+  margin-top: 0;
   padding: clamp(1rem, 3vw, 1.6rem);
   border: 1px solid rgba(61, 106, 93, 0.18);
   border-radius: var(--radius-md);
   background: rgba(250, 246, 234, 0.7);
+}
+
+.comment-card__text {
+  max-width: 78ch;
 }
 
 .comment-card h3 {
@@ -690,6 +688,20 @@ main {
   display: none;
 }
 
+.exhibit-nav {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  padding-top: 0.2rem;
+}
+
+.button--exhibit {
+  border-color: rgba(36, 72, 63, 0.22);
+  background: linear-gradient(135deg, var(--pine), var(--sea-deep));
+  color: #fff8e7;
+  box-shadow: 0 14px 34px rgba(24, 61, 74, 0.24);
+}
+
 .footer {
   padding: 2rem 1rem 3rem;
   color: var(--ink-soft);
@@ -765,13 +777,8 @@ main {
   .map-region--4 { top: 37%; left: 29%; width: 42%; }
   .map-region--5 { right: 5%; bottom: 6%; }
 
-  .exhibit,
-  .exhibit:nth-child(even) {
+  .exhibit-section {
     grid-template-columns: 1fr;
-  }
-
-  .exhibit:nth-child(even) .exhibit__image-panel {
-    order: 0;
   }
 
   .exhibit__image-panel {
@@ -798,12 +805,20 @@ main {
   }
 
   .map-section,
-  .exhibit {
+  .exhibit-section {
     border-radius: 24px;
   }
 
   .comment-card {
     grid-template-columns: 1fr;
+  }
+
+  .comment-card__text {
+    max-width: none;
+  }
+
+  .exhibit-nav {
+    justify-content: stretch;
   }
 
   .audio-button {
