@@ -2261,3 +2261,144 @@ a:focus-visible,
     gap: 0.7rem;
   }
 }
+
+/* Final responsive polish for CTA, hero and mobile map */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+.hero__cta {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding-inline: clamp(2.25rem, 4vw, 3.75rem);
+}
+
+.hero__lead,
+.map-section__lead,
+.exhibit-section,
+.exhibit-card,
+.rune-card,
+.comment-card,
+.mobile-region-card,
+.map-region-card {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    min-height: auto;
+    padding: 4.5rem 1rem 3rem;
+  }
+
+  .hero__content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .hero__title {
+    max-width: 100%;
+    font-size: clamp(2.75rem, 13.5vw, 4.25rem);
+    line-height: 0.98;
+    overflow-wrap: normal;
+  }
+
+  .hero__title span {
+    white-space: normal;
+  }
+
+  .hero__lead {
+    max-width: 100%;
+    font-size: clamp(1rem, 4vw, 1.08rem);
+  }
+
+  .hero__cta {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    padding-inline: 1.25rem;
+  }
+
+  main {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .map-section {
+    width: 100%;
+    max-width: 100%;
+    margin-top: clamp(2.25rem, 9vw, 3rem);
+    padding: clamp(1rem, 4vw, 1.35rem);
+    overflow: hidden;
+  }
+
+  .map-section__copy,
+  .map-section__route,
+  .map-section__lead {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .map-section__stage,
+  .map-section__stage .map-tooltip {
+    display: none;
+  }
+
+  .map-section__mobile-list {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin-top: clamp(1.25rem, 6vw, 1.75rem);
+  }
+
+  .map-region-card {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+    padding: 0.8rem;
+  }
+
+  .map-region-card img {
+    width: 96px;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+  }
+
+  .map-region-card span,
+  .map-region-card strong,
+  .map-region-card small {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .map-region-card {
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .map-region-card img {
+    width: 80px;
+  }
+}
+
+@media (min-width: 768px) {
+  .map-section__mobile-list {
+    display: none;
+  }
+}
