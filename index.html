@@ -10,6 +10,33 @@
     <title>По местам Вяйнямёйнена</title>
   </head>
   <body>
+    <div class="loader" data-loader role="status" aria-live="polite" aria-atomic="true">
+      <div class="loader__scene" aria-hidden="true">
+        <div class="loader__sea"></div>
+        <svg class="loader__sampo" viewBox="0 0 160 160" focusable="false">
+          <circle class="loader__halo" cx="80" cy="80" r="68" />
+          <g class="loader__wheel">
+            <circle class="loader__rim" cx="80" cy="80" r="42" />
+            <circle class="loader__inner" cx="80" cy="80" r="16" />
+            <path class="loader__spokes" d="M80 38v84M38 80h84M50.3 50.3l59.4 59.4M109.7 50.3l-59.4 59.4" />
+            <path class="loader__ornament" d="M80 22c10 12 18 18 34 22-8 14-10 24-6 40-16 2-26 8-36 20-10-12-18-18-34-22 8-14 10-24 6-40 16-2 26-8 36-20Z" />
+          </g>
+          <g class="loader__sparks">
+            <circle cx="120" cy="43" r="3" />
+            <circle cx="132" cy="88" r="2.5" />
+            <circle cx="37" cy="102" r="2.4" />
+            <circle cx="49" cy="31" r="2" />
+            <path d="M104 24l3 6 6 3-6 3-3 6-3-6-6-3 6-3 3-6Z" />
+          </g>
+        </svg>
+      </div>
+      <p class="loader__kicker">Сампо творит из моря и света</p>
+      <p class="loader__text">
+        <span>Сотворяется Сампо…</span>
+        <span>Просыпаются руны…</span>
+        <span>Карта поднимается из моря…</span>
+      </p>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
