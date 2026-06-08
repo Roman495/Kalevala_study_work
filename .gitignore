@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.DS_Store
+.env
+.env.*
+
+# Source tables and heavy media assets must be added manually by users, not by Codex PRs.
+*.xlsx
+*.xls
+*.mp3
+*.wav
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.psd
+*.zip
+*.rar
+
+!.gitkeep
