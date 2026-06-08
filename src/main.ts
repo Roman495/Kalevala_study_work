@@ -22,7 +22,18 @@ const escapeHtml = (value: string): string =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
-const mapImagePath = (path: string): string => assetPath(path.replace(/^\.\//, ''));
+const publicAssetPath = (path: string): string => assetPath(path.replace(/^\.\//, ''));
+const mapImagePath = publicAssetPath;
+
+const preserveRuneLineBreaks = (value: string): string => escapeHtml(value).replaceAll('\n', '<br />');
+
+const renderCommentParagraphs = (value: string): string =>
+  value
+    .split('\n')
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join('');
 
 export const scrollToExhibit = (id: number): void => {
   scrollToElement(`exhibit-${id}`);
@@ -69,21 +80,27 @@ export const renderHeroMap = (container: HTMLElement): void => {
   });
 };
 
-const createExhibit = (exhibit: (typeof exhibits)[number], index: number): string => `
-  <article class="exhibit" id="exhibit-${exhibit.id}" aria-labelledby="exhibit-${exhibit.id}-title">
-    <div class="exhibit__number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</div>
-    <div class="exhibit__image-panel">
-      <img src="${exhibit.picture}" alt="${exhibit.authorCaption}" loading="lazy" />
-      <p class="exhibit__caption" id="exhibit-${exhibit.id}-title">${exhibit.authorCaption}</p>
-    </div>
-    <div class="exhibit__content">
-      <div class="exhibit__region">${exhibit.regionTitle}</div>
-      <blockquote class="exhibit__runes">${exhibit.runes.replaceAll('\n', '<br />')}</blockquote>
+const createExhibit = (exhibit: (typeof exhibits)[number], index: number): string => {
+  const nextExhibit = exhibits[index + 1];
+  const navigationTarget = nextExhibit ? `#exhibit-${nextExhibit.id}` : '#map';
+  const navigationLabel = nextExhibit ? 'Следующий экспонат' : 'Вернуться к карте';
+
+  return `
+    <section class="exhibit-section" id="exhibit-${exhibit.id}" aria-labelledby="exhibit-${exhibit.id}-title">
+      <div class="exhibit__number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</div>
+      <figure class="exhibit__image-panel">
+        <img src="${publicAssetPath(exhibit.picture)}" alt="${escapeHtml(exhibit.authorCaption)}" loading="lazy" />
+        <figcaption class="exhibit__caption" id="exhibit-${exhibit.id}-title">${escapeHtml(exhibit.authorCaption)}</figcaption>
+      </figure>
+      <div class="exhibit__rune-panel">
+        <div class="exhibit__region">${escapeHtml(exhibit.regionTitle)}</div>
+        <blockquote class="exhibit__runes">${preserveRuneLineBreaks(exhibit.runes)}</blockquote>
+      </div>
       <div class="comment-card">
         <button
           class="audio-button"
           type="button"
-          data-audio="${exhibit.audio}"
+          data-audio="${publicAssetPath(exhibit.audio)}"
           aria-label="Включить аудиокомментарий"
         >
           <img src="${assetPath('icon_audio.png')}" alt="" aria-hidden="true" />
@@ -92,18 +109,17 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
         <div class="runosinger-hint" data-runosinger-hint>
           Нажми на меня, и я расскажу об этом экспонате
         </div>
-        <div>
+        <div class="comment-card__text">
           <h3>Комментарий рунопевца</h3>
-          ${exhibit.comment
-            .split('\n')
-            .filter(Boolean)
-            .map((paragraph) => `<p>${paragraph}</p>`)
-            .join('')}
+          ${renderCommentParagraphs(exhibit.comment)}
         </div>
       </div>
-    </div>
-  </article>
-`;
+      <nav class="exhibit-nav" aria-label="Навигация по экспонатам">
+        <a class="button button--exhibit" href="${navigationTarget}">${navigationLabel}</a>
+      </nav>
+    </section>
+  `;
+};
 
 initLoader();
 
@@ -124,9 +140,9 @@ app.innerHTML = `
         с картиной, фрагментом руны и коротким аудиокомментарием.
       </p>
     </section>
-    <section class="exhibits" id="exhibits" aria-label="Экспонаты маршрута">
+    <div class="exhibits" id="exhibits" aria-label="Экспонаты маршрута">
       ${exhibits.map(createExhibit).join('')}
-    </section>
+    </div>
   </main>
   <footer class="footer">
     <p>«По местам Вяйнямёйнена» — статический сайт для GitHub Pages.</p>
