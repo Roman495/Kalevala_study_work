@@ -1,5 +1,6 @@
 const MIN_LOADER_DURATION_MS = 900;
 const MAX_LOADER_DURATION_MS = 2500;
+const LOADER_REMOVE_FALLBACK_MS = 700;
 
 const wait = (ms: number): Promise<void> => new Promise((resolve) => window.setTimeout(resolve, ms));
 
@@ -19,10 +20,14 @@ export const initLoader = (): void => {
   document.body.setAttribute('aria-busy', 'true');
 
   const hideLoader = (): void => {
+    if (!loader.isConnected || loader.classList.contains('loader--hidden')) return;
+
     loader.classList.add('loader--hidden');
     document.body.removeAttribute('aria-busy');
 
-    loader.addEventListener('transitionend', () => loader.remove(), { once: true });
+    const removeLoader = (): void => loader.remove();
+    loader.addEventListener('transitionend', removeLoader, { once: true });
+    window.setTimeout(removeLoader, LOADER_REMOVE_FALLBACK_MS);
   };
 
   const minimumDisplay = wait(Math.max(0, MIN_LOADER_DURATION_MS - (performance.now() - startedAt)));
