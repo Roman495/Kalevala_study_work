@@ -44,8 +44,7 @@ export const renderHeroMap = (container: HTMLElement): void => {
       <div class="hero-map__copy">
         <p class="hero__eyebrow">Интерактивная виртуальная экскурсия</p>
         <h1 id="hero-map-title">По местам Вяйнямёйнена</h1>
-        <p class="hero__lead">Виртуальная экскурсия по образам “Калевалы”</p>
-        <p class="hero-map__instruction">Выберите регион на карте, чтобы перейти к экспонату</p>
+        <p class="hero__lead">Совершите медленную прогулку по северному эпосу. Каждый регион карты связан с картиной, фрагментом руны и коротким аудиокомментарием</p>
       </div>
       <div class="hero-map__route" aria-label="Карта мест виртуальной экскурсии">
         <div class="hero-map__stage">
@@ -237,11 +236,6 @@ initLoader();
 
 app.innerHTML = `
   <header class="hero" id="top">
-    <nav class="topbar" aria-label="Главная навигация">
-      <a href="#top" class="brand">Kalevala Journey</a>
-      <a href="#map">Карта</a>
-      <a href="#exhibits">Экспонаты</a>
-    </nav>
     <div data-hero-map-root></div>
   </header>
   <main>
@@ -257,7 +251,7 @@ app.innerHTML = `
     </div>
   </main>
   <footer class="footer">
-    <p>«По местам Вяйнямёйнена» — статический сайт для GitHub Pages.</p>
+    <p>Проект реализован в рамках практики. Скутельник Роман Николаевич, 2026</p>
   </footer>
 `;
 
