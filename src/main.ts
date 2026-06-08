@@ -49,26 +49,48 @@ export const renderHeroMap = (container: HTMLElement): void => {
         <p class="hero__lead">Виртуальная экскурсия по образам “Калевалы”</p>
         <p class="hero-map__instruction">Выберите регион на карте, чтобы перейти к экспонату</p>
       </div>
-      <div class="hero-map__stage" aria-label="Карта мест виртуальной экскурсии">
-        <div class="hero-map__water" aria-hidden="true"></div>
-        ${exhibits
-          .map(
-            (exhibit, index) => `
-              <button
-                class="map-region map-region--${index + 1}"
-                type="button"
-                data-exhibit-id="${exhibit.id}"
-                aria-label="${escapeHtml(exhibit.regionTitle)}. ${escapeHtml(exhibit.regionDescription)} Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
-              >
-                <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="eager" />
-                <span class="map-region__tooltip" role="tooltip">
-                  <strong>${escapeHtml(exhibit.regionTitle)}</strong>
-                  <span>${escapeHtml(exhibit.regionDescription)}</span>
-                </span>
-              </button>
-            `,
-          )
-          .join('')}
+      <div class="hero-map__route" aria-label="Карта мест виртуальной экскурсии">
+        <div class="hero-map__stage">
+          <div class="hero-map__water" aria-hidden="true"></div>
+          ${exhibits
+            .map(
+              (exhibit, index) => `
+                <button
+                  class="map-region map-region--${index + 1}"
+                  type="button"
+                  data-exhibit-id="${exhibit.id}"
+                  aria-label="${escapeHtml(exhibit.regionTitle)}. ${escapeHtml(exhibit.regionDescription)} Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
+                >
+                  <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="eager" />
+                  <span class="map-region__tooltip" role="tooltip">
+                    <strong>${escapeHtml(exhibit.regionTitle)}</strong>
+                    <span>${escapeHtml(exhibit.regionDescription)}</span>
+                  </span>
+                </button>
+              `,
+            )
+            .join('')}
+        </div>
+        <div class="hero-map__mobile-list" aria-label="Список регионов карты для мобильных устройств">
+          ${exhibits
+            .map(
+              (exhibit) => `
+                <button
+                  class="map-region-card"
+                  type="button"
+                  data-exhibit-id="${exhibit.id}"
+                  aria-label="Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
+                >
+                  <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="lazy" />
+                  <span>
+                    <strong>${escapeHtml(exhibit.regionTitle)}</strong>
+                    <small>${escapeHtml(exhibit.regionDescription)}</small>
+                  </span>
+                </button>
+              `,
+            )
+            .join('')}
+        </div>
       </div>
     </section>
   `;
