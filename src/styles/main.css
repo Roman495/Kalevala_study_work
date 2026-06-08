@@ -2489,3 +2489,45 @@ canvas {
 .hero__cta {
   padding-inline: clamp(2.5rem, 4vw, 4rem);
 }
+
+/* Restore sticky painting + comment overlay while keeping mobile safe */
+
+@media (min-width: 841px) {
+  html,
+  body {
+    overflow-x: visible;
+  }
+
+  main,
+  .exhibits,
+  .exhibit-section {
+    overflow: visible;
+  }
+
+  .exhibit__image-panel {
+    position: sticky !important;
+    top: 1rem;
+    align-self: start;
+    z-index: 1;
+  }
+
+  .comment-card {
+    position: relative;
+    z-index: 5;
+  }
+}
+
+@media (max-width: 840px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  .exhibit__image-panel {
+    position: static;
+  }
+
+  .exhibit-section {
+    overflow: hidden;
+  }
+}
