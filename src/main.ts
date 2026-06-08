@@ -60,10 +60,11 @@ export const renderHeroMap = (container: HTMLElement): void => {
                   type="button"
                   data-exhibit-id="${exhibit.id}"
                   aria-current="false"
+                  aria-describedby="map-region-tooltip-${exhibit.id}"
                   aria-label="${escapeHtml(exhibit.regionTitle)}. ${escapeHtml(exhibit.regionDescription)} Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
                 >
                   <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="eager" decoding="async" data-image-fallback="${escapeHtml(exhibit.regionTitle)}" />
-                  <span class="map-region__tooltip" role="tooltip">
+                  <span class="map-region__tooltip" id="map-region-tooltip-${exhibit.id}" role="tooltip">
                     <strong>${escapeHtml(exhibit.regionTitle)}</strong>
                     <span>${escapeHtml(exhibit.regionDescription)}</span>
                   </span>
