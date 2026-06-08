@@ -2402,3 +2402,90 @@ canvas {
     display: none;
   }
 }
+
+/* Final mobile overflow fix */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.hero,
+.map-section,
+.exhibits-section,
+.site-footer {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.hero__content,
+.hero__inner,
+.map-section__inner,
+.container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    padding: 4.5rem 1rem 3rem;
+  }
+
+  .hero__content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .hero__title {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(2.65rem, 11vw, 3.35rem);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .hero__title span {
+    display: block;
+    max-width: 100%;
+  }
+
+  .hero__lead {
+    max-width: 100%;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .hero__cta {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+    padding-inline: 1.25rem;
+  }
+}
+
+.hero__cta {
+  padding-inline: clamp(2.5rem, 4vw, 4rem);
+}
