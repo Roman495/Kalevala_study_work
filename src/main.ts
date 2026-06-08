@@ -102,7 +102,7 @@ export const renderMapSection = (container: HTMLElement): void => {
       <div class="map-section__copy">
         <p class="section-kicker">Интерактивный маршрут</p>
         <h2 id="map-section-title">Карта путешествия</h2>
-        <p class="map-section__lead">Наведите на регион, чтобы узнать о нём больше, или нажмите, чтобы перейти к экспонату.</p>
+        <p class="map-section__lead">Наведите на регион, чтобы узнать о нём больше, или нажмите, чтобы перейти к\u00A0экспонату</p>
       </div>
       <div class="map-section__route" aria-label="Карта мест виртуальной экскурсии">
         <div class="map-section__stage">
@@ -300,7 +300,7 @@ app.innerHTML = `
         <span>По местам</span>
         <span>Вяйнямёйнена</span>
       </h1>
-      <p class="hero__lead">Взаимодействуйте с картой, чтобы отправиться к экспонатам.</p>
+      <p class="hero__lead">Взаимодействуйте с картой, чтобы отправиться к\u00A0экспонатам</p>
       <a href="#map" class="button button--primary hero__cta" data-scroll-target="map">К карте</a>
     </div>
   </header>
