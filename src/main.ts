@@ -41,7 +41,7 @@ export const scrollToExhibit = (id: number): void => {
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 
 const initMapTooltip = (container: HTMLElement): void => {
-  const stage = container.querySelector<HTMLElement>('.hero-map__stage');
+  const stage = container.querySelector<HTMLElement>('.map-section__stage');
   const tooltip = container.querySelector<HTMLElement>('.map-tooltip');
   const tooltipTitle = tooltip?.querySelector<HTMLElement>('strong');
   const tooltipDescription = tooltip?.querySelector<HTMLElement>('span');
@@ -83,7 +83,7 @@ const initMapTooltip = (container: HTMLElement): void => {
     tooltip.style.setProperty('--map-tooltip-y', `${Math.max(padding, top)}px`);
   };
 
-  container.querySelectorAll<HTMLElement>('.hero-map__stage .map-region').forEach((region) => {
+  container.querySelectorAll<HTMLElement>('.map-section__stage .map-region').forEach((region) => {
     region.addEventListener('pointerenter', () => showTooltip(region));
     region.addEventListener('pointermove', () => {
       if (!tooltip.hidden) positionTooltip(region);
@@ -96,17 +96,17 @@ const initMapTooltip = (container: HTMLElement): void => {
   window.addEventListener('resize', hideTooltip);
 };
 
-export const renderHeroMap = (container: HTMLElement): void => {
+export const renderMapSection = (container: HTMLElement): void => {
   container.innerHTML = `
-    <section class="hero-map reveal-section" id="map" aria-labelledby="hero-map-title">
-      <div class="hero-map__copy">
-        <p class="hero__eyebrow">Интерактивная виртуальная экскурсия</p>
-        <h1 id="hero-map-title"><span>По местам</span><span>Вяйнямёйнена</span></h1>
-        <p class="hero__lead">Взаимодействуйте с картой, чтобы отправиться к экспонатам.</p>
+    <section class="map-section reveal-section" id="map" aria-labelledby="map-section-title">
+      <div class="map-section__copy">
+        <p class="section-kicker">Интерактивный маршрут</p>
+        <h2 id="map-section-title">Карта путешествия</h2>
+        <p class="map-section__lead">Наведите на регион, чтобы узнать о нём больше, или нажмите, чтобы перейти к экспонату.</p>
       </div>
-      <div class="hero-map__route" aria-label="Карта мест виртуальной экскурсии">
-        <div class="hero-map__stage">
-          <div class="hero-map__water" aria-hidden="true"></div>
+      <div class="map-section__route" aria-label="Карта мест виртуальной экскурсии">
+        <div class="map-section__stage">
+          <div class="map-section__water" aria-hidden="true"></div>
           ${exhibits
             .map(
               (exhibit, index) => `
@@ -128,7 +128,7 @@ export const renderHeroMap = (container: HTMLElement): void => {
             <span></span>
           </div>
         </div>
-        <div class="hero-map__mobile-list" aria-label="Список регионов карты для мобильных устройств">
+        <div class="map-section__mobile-list" aria-label="Список регионов карты для мобильных устройств">
           ${exhibits
             .map(
               (exhibit) => `
@@ -292,13 +292,20 @@ const initActiveMapRegions = (): void => {
   exhibitSections.forEach((section) => activeObserver.observe(section));
 };
 
-initLoader();
-
 app.innerHTML = `
   <header class="hero" id="top">
-    <div data-hero-map-root></div>
+    <div class="hero__content">
+      <p class="hero__eyebrow">Интерактивная виртуальная экскурсия</p>
+      <h1 class="hero__title">
+        <span>По местам</span>
+        <span>Вяйнямёйнена</span>
+      </h1>
+      <p class="hero__lead">Взаимодействуйте с картой, чтобы отправиться к экспонатам.</p>
+      <a href="#map" class="button button--primary hero__cta" data-scroll-target="map">К карте</a>
+    </div>
   </header>
   <main>
+    <div data-map-root></div>
     <section class="intro reveal-section" aria-label="О маршруте">
       <p>
         Совершите медленную прогулку по северному эпосу. Каждый регион карты связан
@@ -315,9 +322,15 @@ app.innerHTML = `
 `;
 
 
-const heroMapRoot = document.querySelector<HTMLElement>('[data-hero-map-root]');
-if (heroMapRoot) renderHeroMap(heroMapRoot);
+const mapRoot = document.querySelector<HTMLElement>('[data-map-root]');
+if (mapRoot) renderMapSection(mapRoot);
 
+document.querySelector<HTMLAnchorElement>('[data-scroll-target="map"]')?.addEventListener('click', (event) => {
+  event.preventDefault();
+  scrollToElement('map');
+});
+
+initLoader();
 initImageFallbacks();
 initScrollReveal();
 initActiveMapRegions();

@@ -1,5 +1,5 @@
-const MIN_LOADER_DURATION_MS = 900;
-const MAX_LOADER_DURATION_MS = 2500;
+const MIN_LOADER_DURATION_MS = 3500;
+const MAX_LOADER_DURATION_MS = 7000;
 const LOADER_REMOVE_FALLBACK_MS = 700;
 
 const wait = (ms: number): Promise<void> => new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -10,6 +10,23 @@ const waitForDomReady = (): Promise<void> => {
   return new Promise((resolve) => {
     document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
   });
+};
+
+const waitForImage = (image: HTMLImageElement): Promise<void> => {
+  if (image.complete) return Promise.resolve();
+
+  return new Promise((resolve) => {
+    const finish = (): void => resolve();
+    image.addEventListener('load', finish, { once: true });
+    image.addEventListener('error', finish, { once: true });
+  });
+};
+
+const waitForCriticalAssets = async (): Promise<void> => {
+  await waitForDomReady();
+
+  const criticalImages = Array.from(document.images).filter((image) => image.loading !== 'lazy');
+  await Promise.allSettled(criticalImages.map(waitForImage));
 };
 
 export const initLoader = (): void => {
@@ -31,7 +48,7 @@ export const initLoader = (): void => {
   };
 
   const minimumDisplay = wait(Math.max(0, MIN_LOADER_DURATION_MS - (performance.now() - startedAt)));
-  const interfaceReady = Promise.race([waitForDomReady(), wait(MAX_LOADER_DURATION_MS)]);
+  const criticalAssetsReady = waitForCriticalAssets();
 
-  void Promise.all([minimumDisplay, interfaceReady]).then(hideLoader);
+  void Promise.race([Promise.allSettled([criticalAssetsReady, minimumDisplay]), wait(MAX_LOADER_DURATION_MS)]).then(hideLoader);
 };
