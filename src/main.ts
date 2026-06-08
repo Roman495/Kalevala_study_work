@@ -42,7 +42,7 @@ export const scrollToExhibit = (id: number): void => {
 
 export const renderHeroMap = (container: HTMLElement): void => {
   container.innerHTML = `
-    <section class="hero-map" id="map" aria-labelledby="hero-map-title">
+    <section class="hero-map reveal-section" id="map" aria-labelledby="hero-map-title">
       <div class="hero-map__copy">
         <p class="hero__eyebrow">Интерактивная виртуальная экскурсия</p>
         <h1 id="hero-map-title">По местам Вяйнямёйнена</h1>
@@ -59,6 +59,7 @@ export const renderHeroMap = (container: HTMLElement): void => {
                   class="map-region map-region--${index + 1}"
                   type="button"
                   data-exhibit-id="${exhibit.id}"
+                  aria-current="false"
                   aria-label="${escapeHtml(exhibit.regionTitle)}. ${escapeHtml(exhibit.regionDescription)} Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
                 >
                   <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="eager" />
@@ -79,6 +80,7 @@ export const renderHeroMap = (container: HTMLElement): void => {
                   class="map-region-card"
                   type="button"
                   data-exhibit-id="${exhibit.id}"
+                  aria-current="false"
                   aria-label="Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
                 >
                   <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="lazy" />
@@ -98,7 +100,10 @@ export const renderHeroMap = (container: HTMLElement): void => {
   container.querySelectorAll<HTMLButtonElement>('[data-exhibit-id]').forEach((button) => {
     button.addEventListener('click', () => {
       const exhibitId = Number(button.dataset.exhibitId);
-      if (Number.isInteger(exhibitId)) scrollToExhibit(exhibitId);
+      if (Number.isInteger(exhibitId)) {
+        setActiveMapRegion(exhibitId);
+        scrollToExhibit(exhibitId);
+      }
     });
   });
 };
@@ -109,7 +114,7 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
   const navigationLabel = nextExhibit ? 'Следующий экспонат' : 'Вернуться к карте';
 
   return `
-    <section class="exhibit-section" id="exhibit-${exhibit.id}" aria-labelledby="exhibit-${exhibit.id}-title">
+    <section class="exhibit-section reveal-section" id="exhibit-${exhibit.id}" data-exhibit-section="${exhibit.id}" aria-labelledby="exhibit-${exhibit.id}-title">
       <div class="exhibit__number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</div>
       <figure class="exhibit__image-panel">
         <img src="${publicAssetPath(exhibit.picture)}" alt="${escapeHtml(exhibit.authorCaption)}" loading="lazy" />
@@ -155,6 +160,59 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
   `;
 };
 
+const setActiveMapRegion = (id: number | null): void => {
+  document.querySelectorAll<HTMLElement>('[data-exhibit-id]').forEach((button) => {
+    const isActive = id !== null && Number(button.dataset.exhibitId) === id;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-current', isActive ? 'true' : 'false');
+  });
+};
+
+const initScrollReveal = (): void => {
+  const revealItems = Array.from(document.querySelectorAll<HTMLElement>('.reveal-section'));
+
+  if (!('IntersectionObserver' in window)) {
+    revealItems.forEach((item) => item.classList.add('is-visible'));
+    return;
+  }
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { rootMargin: '0px 0px -12% 0px', threshold: 0.16 },
+  );
+
+  revealItems.forEach((item) => revealObserver.observe(item));
+};
+
+const initActiveMapRegions = (): void => {
+  const exhibitSections = Array.from(document.querySelectorAll<HTMLElement>('[data-exhibit-section]'));
+
+  if (!('IntersectionObserver' in window) || exhibitSections.length === 0) return;
+
+  const activeObserver = new IntersectionObserver(
+    (entries) => {
+      const visibleEntry = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+
+      if (!visibleEntry) return;
+
+      const exhibitId = Number((visibleEntry.target as HTMLElement).dataset.exhibitSection);
+      if (Number.isInteger(exhibitId)) setActiveMapRegion(exhibitId);
+    },
+    { rootMargin: '-30% 0px -45% 0px', threshold: [0.12, 0.35, 0.6] },
+  );
+
+  exhibitSections.forEach((section) => activeObserver.observe(section));
+};
+
 initLoader();
 
 app.innerHTML = `
@@ -167,7 +225,7 @@ app.innerHTML = `
     <div data-hero-map-root></div>
   </header>
   <main>
-    <section class="intro" aria-label="О маршруте">
+    <section class="intro reveal-section" aria-label="О маршруте">
       <p>
         Этот маршрут собран как медленная прогулка по северному эпосу: вода, голос,
         память и изображения соединяются в единую линию. Каждый регион карты связан
@@ -186,6 +244,10 @@ app.innerHTML = `
 
 const heroMapRoot = document.querySelector<HTMLElement>('[data-hero-map-root]');
 if (heroMapRoot) renderHeroMap(heroMapRoot);
+
+initScrollReveal();
+initActiveMapRegions();
+
 
 const hideRunosingerHint = (): void => {
   document.querySelectorAll<HTMLElement>('[data-runosinger-hint]').forEach((hint) => {
