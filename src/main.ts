@@ -1,6 +1,6 @@
 import './styles/main.css';
 import { exhibits } from './data/exhibits';
-import { playExhibitAudio } from './utils/audio';
+import { getAudioLabels, initAudioButtons } from './utils/audio';
 import { hasSeenRunosingerHint, markRunosingerHintSeen } from './utils/storage';
 import { scrollToElement } from './utils/scroll';
 import { initLoader } from './utils/loader';
@@ -24,6 +24,7 @@ const escapeHtml = (value: string): string =>
 
 const publicAssetPath = (path: string): string => assetPath(path.replace(/^\.\//, ''));
 const mapImagePath = publicAssetPath;
+const audioLabels = getAudioLabels();
 
 const preserveRuneLineBreaks = (value: string): string => escapeHtml(value).replaceAll('\n', '<br />');
 
@@ -101,14 +102,25 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
           class="audio-button"
           type="button"
           data-audio="${publicAssetPath(exhibit.audio)}"
-          aria-label="Включить аудиокомментарий"
+          data-audio-state="idle"
+          aria-label="${audioLabels.listen}"
+          aria-pressed="false"
+          aria-busy="false"
         >
           <img src="${assetPath('icon_audio.png')}" alt="" aria-hidden="true" />
           <span class="audio-button__pulse" aria-hidden="true"></span>
+          <span class="audio-button__wave audio-button__wave--one" aria-hidden="true"></span>
+          <span class="audio-button__wave audio-button__wave--two" aria-hidden="true"></span>
+          <span class="audio-button__label" data-audio-label>${audioLabels.listen}</span>
         </button>
-        <div class="runosinger-hint" data-runosinger-hint>
-          Нажми на меня, и я расскажу об этом экспонате
-        </div>
+        ${
+          index === 0
+            ? `<div class="runosinger-hint" data-runosinger-hint role="status">
+                <p>Нажми на меня, и я расскажу об этом экспонате</p>
+                <button class="runosinger-hint__close" type="button" data-runosinger-hint-close aria-label="Закрыть подсказку">×</button>
+              </div>`
+            : ''
+        }
         <div class="comment-card__text">
           <h3>Комментарий рунопевца</h3>
           ${renderCommentParagraphs(exhibit.comment)}
@@ -153,23 +165,23 @@ app.innerHTML = `
 const heroMapRoot = document.querySelector<HTMLElement>('[data-hero-map-root]');
 if (heroMapRoot) renderHeroMap(heroMapRoot);
 
-document.querySelectorAll<HTMLButtonElement>('[data-audio]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const audio = button.dataset.audio;
-    if (!audio) return;
-
-    document.querySelectorAll<HTMLElement>('[data-runosinger-hint]').forEach((hint) => {
-      hint.classList.add('runosinger-hint--hidden');
-    });
-    markRunosingerHintSeen();
-    playExhibitAudio(audio, button);
-  });
-});
-
-if (hasSeenRunosingerHint()) {
+const hideRunosingerHint = (): void => {
   document.querySelectorAll<HTMLElement>('[data-runosinger-hint]').forEach((hint) => {
+    hint.classList.remove('runosinger-hint--visible');
     hint.classList.add('runosinger-hint--hidden');
   });
+  markRunosingerHintSeen();
+};
+
+initAudioButtons(document.querySelectorAll<HTMLButtonElement>('[data-audio]'), hideRunosingerHint);
+
+document.querySelectorAll<HTMLButtonElement>('[data-runosinger-hint-close]').forEach((button) => {
+  button.addEventListener('click', hideRunosingerHint);
+});
+
+const runosingerHint = document.querySelector<HTMLElement>('[data-runosinger-hint]');
+if (!runosingerHint || hasSeenRunosingerHint()) {
+  runosingerHint?.classList.add('runosinger-hint--hidden');
 } else {
-  document.querySelector<HTMLElement>('[data-runosinger-hint]')?.classList.add('runosinger-hint--visible');
+  runosingerHint.classList.add('runosinger-hint--visible');
 }
