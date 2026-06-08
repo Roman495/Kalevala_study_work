@@ -2531,3 +2531,9 @@ canvas {
     overflow: hidden;
   }
 }
+
+.comment-card .runosinger-hint,
+.comment-card .runosinger-hint p,
+.comment-card .runosinger-hint button {
+  color: #fff8e7 !important;
+}
