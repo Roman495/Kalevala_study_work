@@ -1,17 +1,23 @@
 const RUNOSINGER_HINT_KEY = 'kalevala-runosinger-hint-seen';
 
-export const hasSeenRunosingerHint = (): boolean => {
+const readLocalStorage = (key: string): string | null => {
   try {
-    return localStorage.getItem(RUNOSINGER_HINT_KEY) === 'true';
+    return window.localStorage.getItem(key);
   } catch {
-    return false;
+    return null;
   }
 };
 
-export const markRunosingerHintSeen = (): void => {
+const writeLocalStorage = (key: string, value: string): void => {
   try {
-    localStorage.setItem(RUNOSINGER_HINT_KEY, 'true');
+    window.localStorage.setItem(key, value);
   } catch {
     // The tour remains usable if storage is unavailable.
   }
+};
+
+export const hasSeenRunosingerHint = (): boolean => readLocalStorage(RUNOSINGER_HINT_KEY) === 'true';
+
+export const markRunosingerHintSeen = (): void => {
+  writeLocalStorage(RUNOSINGER_HINT_KEY, 'true');
 };
