@@ -20,36 +20,60 @@ const createLoader = (): string => `
   </div>
 `;
 
-const createMap = (): string => `
-  <section class="map-section" id="map" aria-labelledby="map-title">
-    <div class="section-kicker">Интерактивная карта</div>
-    <h2 id="map-title">Выберите место сказания</h2>
-    <p class="map-section__lead">
-      Пять фрагментов карты покачиваются на воде. Наведите курсор или перейдите клавишей Tab,
-      чтобы увидеть подсказку, и нажмите на регион для плавного перехода к экспонату.
-    </p>
-    <div class="map-board" aria-label="Карта мест виртуальной экскурсии">
-      ${exhibits
-        .map(
-          (exhibit, index) => `
-            <button
-              class="map-region map-region--${index + 1}"
-              type="button"
-              data-target="exhibit-${exhibit.id}"
-              aria-label="${exhibit.regionTitle}. Перейти к экспонату: ${exhibit.authorCaption}"
-            >
-              <img src="${exhibit.mapImage}" alt="" loading="lazy" />
-              <span class="map-region__tooltip" role="tooltip">
-                <strong>${exhibit.regionTitle}</strong>
-                <span>${exhibit.regionDescription}</span>
-              </span>
-            </button>
-          `,
-        )
-        .join('')}
-    </div>
-  </section>
-`;
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+const mapImagePath = (path: string): string => assetPath(path.replace(/^\.\//, ''));
+
+export const scrollToExhibit = (id: number): void => {
+  scrollToElement(`exhibit-${id}`);
+};
+
+export const renderHeroMap = (container: HTMLElement): void => {
+  container.innerHTML = `
+    <section class="hero-map" id="map" aria-labelledby="hero-map-title">
+      <div class="hero-map__copy">
+        <p class="hero__eyebrow">Интерактивная виртуальная экскурсия</p>
+        <h1 id="hero-map-title">По местам Вяйнямёйнена</h1>
+        <p class="hero__lead">Виртуальная экскурсия по образам “Калевалы”</p>
+        <p class="hero-map__instruction">Выберите регион на карте, чтобы перейти к экспонату</p>
+      </div>
+      <div class="hero-map__stage" aria-label="Карта мест виртуальной экскурсии">
+        <div class="hero-map__water" aria-hidden="true"></div>
+        ${exhibits
+          .map(
+            (exhibit, index) => `
+              <button
+                class="map-region map-region--${index + 1}"
+                type="button"
+                data-exhibit-id="${exhibit.id}"
+                aria-label="${escapeHtml(exhibit.regionTitle)}. ${escapeHtml(exhibit.regionDescription)} Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
+              >
+                <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="eager" />
+                <span class="map-region__tooltip" role="tooltip">
+                  <strong>${escapeHtml(exhibit.regionTitle)}</strong>
+                  <span>${escapeHtml(exhibit.regionDescription)}</span>
+                </span>
+              </button>
+            `,
+          )
+          .join('')}
+      </div>
+    </section>
+  `;
+
+  container.querySelectorAll<HTMLButtonElement>('[data-exhibit-id]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const exhibitId = Number(button.dataset.exhibitId);
+      if (Number.isInteger(exhibitId)) scrollToExhibit(exhibitId);
+    });
+  });
+};
 
 const createExhibit = (exhibit: (typeof exhibits)[number], index: number): string => `
   <article class="exhibit" id="exhibit-${exhibit.id}" aria-labelledby="exhibit-${exhibit.id}-title">
@@ -89,28 +113,15 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
 
 app.innerHTML = `
   ${createLoader()}
-  <header class="hero">
+  <header class="hero" id="top">
     <nav class="topbar" aria-label="Главная навигация">
       <a href="#top" class="brand">Kalevala Journey</a>
       <a href="#map">Карта</a>
       <a href="#exhibits">Экспонаты</a>
     </nav>
-    <div class="hero__content" id="top">
-      <p class="hero__eyebrow">Виртуальная экскурсия-лонгрид</p>
-      <h1>По местам Вяйнямёйнена</h1>
-      <p class="hero__lead">
-        Пять остановок по мотивам «Калевалы»: от берега Айно до горизонта,
-        где старый песнопевец оставляет людям кантеле и песню.
-      </p>
-      <div class="hero__actions">
-        <a class="button button--primary" href="#map">Открыть карту</a>
-        <a class="button button--ghost" href="#exhibits">Смотреть экспонаты</a>
-      </div>
-    </div>
-    <div class="hero__ornament" aria-hidden="true"></div>
+    <div data-hero-map-root></div>
   </header>
   <main>
-    ${createMap()}
     <section class="intro" aria-label="О маршруте">
       <p>
         Этот маршрут собран как медленная прогулка по северному эпосу: вода, голос,
@@ -132,12 +143,8 @@ window.addEventListener('load', () => {
   window.setTimeout(() => loader?.classList.add('loader--hidden'), 500);
 });
 
-document.querySelectorAll<HTMLButtonElement>('[data-target]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const target = button.dataset.target;
-    if (target) scrollToElement(target);
-  });
-});
+const heroMapRoot = document.querySelector<HTMLElement>('[data-hero-map-root]');
+if (heroMapRoot) renderHeroMap(heroMapRoot);
 
 document.querySelectorAll<HTMLButtonElement>('[data-audio]').forEach((button) => {
   button.addEventListener('click', () => {
