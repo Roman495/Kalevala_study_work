@@ -3,10 +3,10 @@ import { exhibits } from './data/exhibits';
 import { getAudioLabels, initAudioButtons } from './utils/audio';
 import { hasSeenRunosingerHint, markRunosingerHintSeen } from './utils/storage';
 import { scrollToElement } from './utils/scroll';
-import { asset } from './utils/assets';
+import { asset, publicAsset } from './utils/assets';
 import { initLoader } from './utils/loader';
 
-document.documentElement.style.setProperty('--tour-background-image', `url("${asset('background.png')}")`);
+document.documentElement.style.setProperty('--hero-bg-image', `url("${publicAsset('background.png')}")`);
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
@@ -38,13 +38,71 @@ export const scrollToExhibit = (id: number): void => {
   scrollToElement(`exhibit-${id}`);
 };
 
+const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
+
+const initMapTooltip = (container: HTMLElement): void => {
+  const stage = container.querySelector<HTMLElement>('.hero-map__stage');
+  const tooltip = container.querySelector<HTMLElement>('.map-tooltip');
+  const tooltipTitle = tooltip?.querySelector<HTMLElement>('strong');
+  const tooltipDescription = tooltip?.querySelector<HTMLElement>('span');
+
+  if (!stage || !tooltip || !tooltipTitle || !tooltipDescription) return;
+
+  const showTooltip = (region: HTMLElement): void => {
+    const exhibitId = Number(region.dataset.exhibitId);
+    const exhibit = exhibits.find((item) => item.id === exhibitId);
+
+    if (!exhibit) return;
+
+    tooltipTitle.textContent = exhibit.regionTitle;
+    tooltipDescription.textContent = exhibit.regionDescription;
+    tooltip.hidden = false;
+    tooltip.classList.add('is-visible');
+    positionTooltip(region);
+  };
+
+  const hideTooltip = (): void => {
+    tooltip.classList.remove('is-visible');
+    tooltip.hidden = true;
+  };
+
+  const positionTooltip = (region: HTMLElement): void => {
+    const stageRect = stage.getBoundingClientRect();
+    const regionRect = region.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const gap = 12;
+    const padding = 12;
+    const regionCenterX = regionRect.left - stageRect.left + regionRect.width / 2;
+    const preferredTop = regionRect.top - stageRect.top - tooltipRect.height - gap;
+    const fallbackTop = regionRect.bottom - stageRect.top + gap;
+    const maxLeft = Math.max(padding, stageRect.width - tooltipRect.width - padding);
+    const left = clamp(regionCenterX - tooltipRect.width / 2, padding, maxLeft);
+    const top = preferredTop >= padding ? preferredTop : Math.min(fallbackTop, stageRect.height - tooltipRect.height - padding);
+
+    tooltip.style.setProperty('--map-tooltip-x', `${left}px`);
+    tooltip.style.setProperty('--map-tooltip-y', `${Math.max(padding, top)}px`);
+  };
+
+  container.querySelectorAll<HTMLElement>('.hero-map__stage .map-region').forEach((region) => {
+    region.addEventListener('pointerenter', () => showTooltip(region));
+    region.addEventListener('pointermove', () => {
+      if (!tooltip.hidden) positionTooltip(region);
+    });
+    region.addEventListener('pointerleave', hideTooltip);
+    region.addEventListener('focus', () => showTooltip(region));
+    region.addEventListener('blur', hideTooltip);
+  });
+
+  window.addEventListener('resize', hideTooltip);
+};
+
 export const renderHeroMap = (container: HTMLElement): void => {
   container.innerHTML = `
     <section class="hero-map reveal-section" id="map" aria-labelledby="hero-map-title">
       <div class="hero-map__copy">
         <p class="hero__eyebrow">Интерактивная виртуальная экскурсия</p>
-        <h1 id="hero-map-title">По местам Вяйнямёйнена</h1>
-        <p class="hero__lead">Совершите медленную прогулку по северному эпосу. Каждый регион карты связан с картиной, фрагментом руны и коротким аудиокомментарием</p>
+        <h1 id="hero-map-title"><span>По местам</span><span>Вяйнямёйнена</span></h1>
+        <p class="hero__lead">Взаимодействуйте с картой, чтобы отправиться к экспонатам.</p>
       </div>
       <div class="hero-map__route" aria-label="Карта мест виртуальной экскурсии">
         <div class="hero-map__stage">
@@ -57,18 +115,18 @@ export const renderHeroMap = (container: HTMLElement): void => {
                   type="button"
                   data-exhibit-id="${exhibit.id}"
                   aria-current="false"
-                  aria-describedby="map-region-tooltip-${exhibit.id}"
+                  aria-describedby="map-region-tooltip"
                   aria-label="${escapeHtml(exhibit.regionTitle)}. ${escapeHtml(exhibit.regionDescription)} Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
                 >
                   <img src="${asset(exhibit.mapImage)}" alt="" loading="eager" decoding="async" data-image-fallback="${escapeHtml(exhibit.regionTitle)}" />
-                  <span class="map-region__tooltip" id="map-region-tooltip-${exhibit.id}" role="tooltip">
-                    <strong>${escapeHtml(exhibit.regionTitle)}</strong>
-                    <span>${escapeHtml(exhibit.regionDescription)}</span>
-                  </span>
                 </button>
               `,
             )
             .join('')}
+          <div class="map-tooltip" id="map-region-tooltip" role="tooltip" hidden>
+            <strong></strong>
+            <span></span>
+          </div>
         </div>
         <div class="hero-map__mobile-list" aria-label="Список регионов карты для мобильных устройств">
           ${exhibits
@@ -94,6 +152,8 @@ export const renderHeroMap = (container: HTMLElement): void => {
       </div>
     </section>
   `;
+
+  initMapTooltip(container);
 
   container.querySelectorAll<HTMLButtonElement>('[data-exhibit-id]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -133,7 +193,7 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
           aria-busy="false"
           aria-describedby="audio-message-${exhibit.id}"
         >
-          <img src="${asset('icon_audio.png')}" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+          <img src="${publicAsset('icon_audio.png')}" alt="" aria-hidden="true" loading="lazy" decoding="async" />
           <span class="audio-button__pulse" aria-hidden="true"></span>
           <span class="audio-button__wave audio-button__wave--one" aria-hidden="true"></span>
           <span class="audio-button__wave audio-button__wave--two" aria-hidden="true"></span>
@@ -241,9 +301,8 @@ app.innerHTML = `
   <main>
     <section class="intro reveal-section" aria-label="О маршруте">
       <p>
-        Этот маршрут собран как медленная прогулка по северному эпосу: вода, голос,
-        память и изображения соединяются в единую линию. Каждый регион карты связан
-        с картиной, фрагментом руны и коротким аудиокомментарием.
+        Совершите медленную прогулку по северному эпосу. Каждый регион карты связан
+        с картиной, фрагментом руны и коротким аудиокомментарием
       </p>
     </section>
     <div class="exhibits" id="exhibits" aria-label="Экспонаты маршрута">
