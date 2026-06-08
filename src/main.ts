@@ -5,7 +5,7 @@ import { hasSeenRunosingerHint, markRunosingerHintSeen } from './utils/storage';
 import { scrollToElement } from './utils/scroll';
 import { initLoader } from './utils/loader';
 
-const assetPath = (path: string): string => `${import.meta.env.BASE_URL}${path}`.replace(/\/\//g, '/');
+const assetPath = (path: string): string => `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
 document.documentElement.style.setProperty('--tour-background-image', `url("${assetPath('background.png')}")`);
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -62,7 +62,7 @@ export const renderHeroMap = (container: HTMLElement): void => {
                   aria-current="false"
                   aria-label="${escapeHtml(exhibit.regionTitle)}. ${escapeHtml(exhibit.regionDescription)} Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
                 >
-                  <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="eager" />
+                  <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="eager" decoding="async" data-image-fallback="${escapeHtml(exhibit.regionTitle)}" />
                   <span class="map-region__tooltip" role="tooltip">
                     <strong>${escapeHtml(exhibit.regionTitle)}</strong>
                     <span>${escapeHtml(exhibit.regionDescription)}</span>
@@ -83,7 +83,7 @@ export const renderHeroMap = (container: HTMLElement): void => {
                   aria-current="false"
                   aria-label="Перейти к экспонату: ${escapeHtml(exhibit.authorCaption)}"
                 >
-                  <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="lazy" />
+                  <img src="${mapImagePath(exhibit.mapImage)}" alt="" loading="lazy" decoding="async" data-image-fallback="${escapeHtml(exhibit.regionTitle)}" />
                   <span>
                     <strong>${escapeHtml(exhibit.regionTitle)}</strong>
                     <small>${escapeHtml(exhibit.regionDescription)}</small>
@@ -117,7 +117,7 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
     <section class="exhibit-section reveal-section" id="exhibit-${exhibit.id}" data-exhibit-section="${exhibit.id}" aria-labelledby="exhibit-${exhibit.id}-title">
       <div class="exhibit__number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</div>
       <figure class="exhibit__image-panel">
-        <img src="${publicAssetPath(exhibit.picture)}" alt="${escapeHtml(exhibit.authorCaption)}" loading="lazy" />
+        <img src="${publicAssetPath(exhibit.picture)}" alt="${escapeHtml(exhibit.authorCaption)}" loading="lazy" decoding="async" data-image-fallback="${escapeHtml(exhibit.authorCaption)}" />
         <figcaption class="exhibit__caption" id="exhibit-${exhibit.id}-title">${escapeHtml(exhibit.authorCaption)}</figcaption>
       </figure>
       <div class="exhibit__rune-panel">
@@ -133,13 +133,15 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
           aria-label="${audioLabels.listen}"
           aria-pressed="false"
           aria-busy="false"
+          aria-describedby="audio-message-${exhibit.id}"
         >
-          <img src="${assetPath('icon_audio.png')}" alt="" aria-hidden="true" />
+          <img src="${assetPath('icon_audio.png')}" alt="" aria-hidden="true" loading="lazy" decoding="async" />
           <span class="audio-button__pulse" aria-hidden="true"></span>
           <span class="audio-button__wave audio-button__wave--one" aria-hidden="true"></span>
           <span class="audio-button__wave audio-button__wave--two" aria-hidden="true"></span>
           <span class="audio-button__label" data-audio-label>${audioLabels.listen}</span>
         </button>
+        <p class="audio-message" id="audio-message-${exhibit.id}" data-audio-message role="status" aria-live="polite" hidden></p>
         ${
           index === 0
             ? `<div class="runosinger-hint" data-runosinger-hint role="status">
@@ -158,6 +160,25 @@ const createExhibit = (exhibit: (typeof exhibits)[number], index: number): strin
       </nav>
     </section>
   `;
+};
+
+const initImageFallbacks = (): void => {
+  document.querySelectorAll<HTMLImageElement>('[data-image-fallback]').forEach((image) => {
+    image.addEventListener(
+      'error',
+      () => {
+        const fallbackText = image.dataset.imageFallback || 'Изображение временно недоступно';
+        const panel = image.closest<HTMLElement>('.exhibit__image-panel, .map-region, .map-region-card');
+        panel?.classList.add('has-image-error');
+        image.hidden = true;
+        image.insertAdjacentHTML(
+          'afterend',
+          `<span class="image-fallback" role="img" aria-label="${escapeHtml(fallbackText)}"><span aria-hidden="true">ᚲ</span><span>Изображение временно недоступно</span></span>`,
+        );
+      },
+      { once: true },
+    );
+  });
 };
 
 const setActiveMapRegion = (id: number | null): void => {
@@ -245,6 +266,7 @@ app.innerHTML = `
 const heroMapRoot = document.querySelector<HTMLElement>('[data-hero-map-root]');
 if (heroMapRoot) renderHeroMap(heroMapRoot);
 
+initImageFallbacks();
 initScrollReveal();
 initActiveMapRegions();
 
