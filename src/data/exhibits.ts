@@ -39,7 +39,7 @@ export const exhibits: Exhibit[] = [
   {
     "id": 3,
     "regionId": "region-3",
-    "regionTitle": "Угодья Похьёлы",
+    "regionTitle": "Похъёла",
     "regionDescription": "Холодный край испытаний под властью Лоухи",
     "mapImage": "map/map_3.png",
     "picture": "pictures/pic_3.jpg",
